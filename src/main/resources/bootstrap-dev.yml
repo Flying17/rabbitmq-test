@@ -1,0 +1,40 @@
+spring:
+  cloud:
+    stream:
+      binders: # 在此处配置要绑定的rabbitmq的服务信息；
+        rabbit1: # 表示定义的名称，用于于binding整合
+          type: rabbit # 消息组件类型
+          environment: # 设置rabbitmq的相关的环境配置
+            spring:
+              rabbitmq:
+              host: hewenhao.work
+              port: 5672
+              username: admin
+              password: admin
+              virtual-host: /
+      bindings: # 服务的整合处理
+        message_output: # 这个名字是一个通道的名称，在分析具体源代码的时候会进行说明
+          destination: message_output_e # 表示要使用的Exchange名称定义
+          content-type: application/json # 设置消息类型，本次为对象json，如果是文本则设置“text/plain”
+          binder: rabbit1 # 设置要绑定的消息服务的具体设置
+        ecm_shop_template: # 这个名字是一个通道的名称，在分析具体源代码的时候会进行说明
+          destination: ecm_shop_template_e # 表示要使用的Exchange名称定义
+          content-type: application/plain # 设置消息类型，本次为对象json，如果是文本则设置“text/plain”
+          binder: rabbit1 # 设置要绑定的消息服务的具体设置
+eureka:
+  instance:
+    status-page-url-path: /swagger-ui.html
+    ## 指定此实例的IP，不绑IP默认用本机局域网IP
+    #ip-address: 139.196.88.15wa
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${spring.application.instance_id:${server.port}}
+    appname: ${spring.application.name}
+    ## 每间隔10s，向服务端发送一次心跳，证明自己依然“存活”
+    lease-renewal-interval-in-seconds: 10
+    ## 告诉服务端，如果我15s之内没有给你发心跳，就代表我“死”了，将我踢出掉。
+    lease-expiration-duration-in-seconds: 15
+  client:
+    ## 设置拉取服务注册信息时间，默认60s
+    registry-fetch-interval-seconds: 20
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8761/eureka 
